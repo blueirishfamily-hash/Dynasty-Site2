@@ -30,7 +30,172 @@
             font-family: 'Inter', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+        .nav-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            transition: width 0.3s ease;
+            z-index: 1000;
+            overflow: hidden;
+            width: 250px;
+        }
+        .nav-sidebar.collapsed {
+            width: 60px;
+        }
+        .sidebar-toggle {
+            width: 100%;
+            padding: var(--spacing-md);
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: var(--spacing-md);
+            transition: background 0.2s;
+        }
+        .sidebar-toggle:hover {
+            background: var(--bg-hover);
+        }
+        .sidebar-toggle-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .sidebar-toggle-text {
+            white-space: nowrap;
+            font-weight: 600;
+        }
+        .nav-sidebar.collapsed .sidebar-toggle-text {
+            display: none;
+        }
+        .nav-links {
+            padding: var(--spacing-md) 0;
+        }
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-link-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .nav-link-item.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-emerald);
+            border-left-color: var(--accent-emerald);
+        }
+        .nav-link-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            width: 24px;
+            text-align: center;
+        }
+        .nav-link-text {
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .nav-sidebar.collapsed .nav-link-text {
+            display: none;
+        }
+        .main-wrapper {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-sidebar.collapsed ~ .main-wrapper {
+            margin-left: 60px;
+        }
+        .top-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        .team-selector {
+            position: relative;
+        }
+        .team-select-btn {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            min-width: 150px;
+        }
+        .team-select-btn:hover {
+            background: var(--bg-hover);
+        }
+        .team-select-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: var(--spacing-xs);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .team-select-dropdown.show {
+            display: block;
+        }
+        .team-option {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--text-primary);
+        }
+        .team-option:hover {
+            background: var(--bg-hover);
+        }
+        .team-option.selected {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-emerald);
+        }
+        .content-area {
+            flex: 1;
             padding: var(--spacing-lg);
+            overflow-y: auto;
         }
         .draft-container {
             max-width: 1600px;
@@ -170,13 +335,69 @@
             font-size: 1.5rem;
             font-weight: 600;
         }
+        @media (max-width: 768px) {
+            .nav-sidebar {
+                transform: translateX(-100%);
+            }
+            .nav-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .main-wrapper {
+                margin-left: 0 !important;
+            }
+            .nav-sidebar {
+                width: 250px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="draft-container">
-        <div class="draft-header">
-            <h1 class="heading-2">Draft Board</h1>
+    <nav class="nav-sidebar" id="navSidebar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <span class="sidebar-toggle-icon">☰</span>
+            <span class="sidebar-toggle-text">Menu</span>
+        </button>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link-item">
+                <span class="nav-link-icon">📊</span>
+                <span class="nav-link-text">Dashboard</span>
+            </a>
+            <a href="roster.html" class="nav-link-item">
+                <span class="nav-link-icon">👥</span>
+                <span class="nav-link-text">Roster</span>
+            </a>
+            <a href="trade.html" class="nav-link-item">
+                <span class="nav-link-icon">🤝</span>
+                <span class="nav-link-text">Trade Center</span>
+            </a>
+            <a href="draft.html" class="nav-link-item active">
+                <span class="nav-link-icon">📋</span>
+                <span class="nav-link-text">Draft Board</span>
+            </a>
         </div>
+    </nav>
+    
+    <div class="main-wrapper">
+        <div class="top-header">
+            <div class="header-left">
+                <h1 class="heading-2" style="font-size: 1.5rem; margin: 0;">Draft Board</h1>
+            </div>
+            <div class="header-right">
+                <div class="team-selector">
+                    <button class="team-select-btn" onclick="toggleTeamSelector()">
+                        <span id="selectedTeamName">Select Team</span>
+                        <span>▼</span>
+                    </button>
+                    <div class="team-select-dropdown" id="teamDropdown"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div class="draft-container">
+                <div class="draft-header" style="display: none;">
+                    <h1 class="heading-2">Draft Board</h1>
+                </div>
         
         <div id="errorContainer"></div>
         
@@ -226,7 +447,11 @@
                 allUsers = users;
                 allPlayers = players;
                 tradedPicks = picks;
-                currentUserId = users[0]?.user_id;
+                
+                if (!currentUserId) {
+                    const savedUserId = localStorage.getItem('selectedUserId');
+                    currentUserId = savedUserId || users[0]?.user_id;
+                }
 
                 allDrafts.sort((a, b) => (b.season || 0) - (a.season || 0));
 
@@ -376,7 +601,101 @@
             errorContainer.innerHTML = `<div class="error">${message}</div>`;
         }
 
-        document.addEventListener('DOMContentLoaded', loadDraftBoard);
+        // Sidebar functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('navSidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        function initSidebar() {
+            const sidebar = document.getElementById('navSidebar');
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+            }
+            
+            const currentPage = window.location.pathname.split('/').pop() || 'draft.html';
+            document.querySelectorAll('.nav-link-item').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Team selector functionality
+        function toggleTeamSelector() {
+            const dropdown = document.getElementById('teamDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        async function loadTeamSelector() {
+            try {
+                const users = await sleeperAPI.getUsers();
+                allUsers = users;
+                const dropdown = document.getElementById('teamDropdown');
+                
+                const savedUserId = localStorage.getItem('selectedUserId');
+                if (savedUserId) {
+                    currentUserId = savedUserId;
+                } else {
+                    currentUserId = users[0]?.user_id;
+                }
+
+                dropdown.innerHTML = users.map(user => {
+                    const isSelected = user.user_id === currentUserId;
+                    return `
+                        <div class="team-option ${isSelected ? 'selected' : ''}" 
+                             onclick="selectTeam('${user.user_id}')">
+                            ${user.display_name || user.username || `Team ${user.user_id}`}
+                        </div>
+                    `;
+                }).join('');
+
+                updateSelectedTeamName();
+            } catch (error) {
+                console.error('Failed to load teams:', error);
+            }
+        }
+
+        function selectTeam(userId) {
+            currentUserId = userId;
+            localStorage.setItem('selectedUserId', userId);
+            updateSelectedTeamName();
+            document.getElementById('teamDropdown').classList.remove('show');
+            loadDraftBoard();
+        }
+
+        function updateSelectedTeamName() {
+            if (allUsers.length === 0) return;
+            const user = allUsers.find(u => u.user_id === currentUserId);
+            if (user) {
+                const teamName = user.display_name || user.username || 'Select Team';
+                document.getElementById('selectedTeamName').textContent = teamName;
+                
+                document.querySelectorAll('.team-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.textContent.trim() === teamName) {
+                        option.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const selector = document.querySelector('.team-selector');
+            if (selector && !selector.contains(event.target)) {
+                document.getElementById('teamDropdown').classList.remove('show');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initSidebar();
+            loadTeamSelector().then(() => {
+                loadDraftBoard();
+            });
+        });
     </script>
 </body>
 </html>
