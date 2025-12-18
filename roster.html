@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roster Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-navy: #0A1929;
+            --primary-dark: #132F4C;
+            --primary-medium: #1E4A6B;
+            --accent-emerald: #10B981;
+            --accent-emerald-light: #34D399;
+            --accent-orange: #F97316;
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-tertiary: #334155;
+            --bg-card: #1E293B;
+            --bg-hover: #334155;
+            --text-primary: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-tertiary: #94A3B8;
+            --text-muted: #64748B;
+            --border-color: #334155;
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: var(--spacing-lg);
+        }
+        .roster-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .roster-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        .roster-controls {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+        .search-box {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            width: 300px;
+        }
+        .filter-group {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+        .filter-select {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .roster-table {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        .table-header {
+            display: grid;
+            grid-template-columns: 50px 200px 80px 100px 100px 100px 100px 100px 80px 100px;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 50px 200px 80px 100px 100px 100px 100px 100px 80px 100px;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .table-row:hover {
+            background: var(--bg-hover);
+        }
+        .table-row.starting {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--accent-emerald);
+        }
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .player-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .player-team {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .position-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .position-badge.QB { background: rgba(99, 102, 241, 0.2); color: #818CF8; }
+        .position-badge.RB { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
+        .position-badge.WR { background: rgba(249, 115, 22, 0.2); color: var(--accent-orange); }
+        .position-badge.TE { background: rgba(236, 72, 153, 0.2); color: #F472B6; }
+        .age-cell {
+            text-align: center;
+            font-weight: 600;
+        }
+        .age-cell.young { color: var(--accent-emerald); }
+        .age-cell.prime { color: var(--accent-orange); }
+        .age-cell.veteran { color: var(--text-tertiary); }
+        .stat-cell {
+            text-align: center;
+            font-weight: 500;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .status-badge.starter { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
+        .status-badge.bench { background: rgba(100, 116, 139, 0.2); color: var(--text-tertiary); }
+        .status-badge.taxi { background: rgba(249, 115, 22, 0.2); color: var(--accent-orange); }
+        .status-badge.ir { background: rgba(239, 68, 68, 0.2); color: #F87171; }
+        .loading {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+        }
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .player-modal.active { display: flex; }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .player-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-emerald);
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .heading-2 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="roster-container">
+        <div class="roster-header">
+            <h1 class="heading-2">My Roster</h1>
+            <div class="roster-controls">
+                <input type="text" class="search-box" id="playerSearch" placeholder="Search players..." onkeyup="filterPlayers()">
+                <div class="filter-group">
+                    <select class="filter-select" id="positionFilter" onchange="filterPlayers()">
+                        <option value="">All Positions</option>
+                        <option value="QB">QB</option>
+                        <option value="RB">RB</option>
+                        <option value="WR">WR</option>
+                        <option value="TE">TE</option>
+                    </select>
+                    <select class="filter-select" id="statusFilter" onchange="filterPlayers()">
+                        <option value="">All Status</option>
+                        <option value="starter">Starting</option>
+                        <option value="bench">Bench</option>
+                        <option value="taxi">Taxi Squad</option>
+                        <option value="ir">IR</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div id="errorContainer"></div>
+        
+        <div class="roster-table">
+            <div class="table-header">
+                <div></div>
+                <div>Player</div>
+                <div>Pos</div>
+                <div>Age</div>
+                <div>Week Pts</div>
+                <div>Season Pts</div>
+                <div>Avg Pts</div>
+                <div>Pos Rank</div>
+                <div>Bye</div>
+                <div>Status</div>
+            </div>
+            <div id="rosterTableBody">
+                <div class="loading">Loading roster...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="player-modal" id="playerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="heading-2" id="modalPlayerName">Player Name</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div id="modalPlayerContent">
+                <div class="loading">Loading player details...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="sleeper-api.js"></script>
+    <script>
+        let currentUserId = null;
+        let allPlayers = {};
+        let rosterData = [];
+        let filteredRosterData = [];
+
+        async function loadRoster() {
+            try {
+                const users = await sleeperAPI.getUsers();
+                currentUserId = users[0]?.user_id;
+
+                if (!currentUserId) {
+                    showError('Unable to determine user ID');
+                    return;
+                }
+
+                const [rosters, players] = await Promise.all([
+                    sleeperAPI.getRosters(),
+                    sleeperAPI.getPlayers()
+                ]);
+
+                allPlayers = players;
+                const userRoster = rosters.find(r => r.owner_id === currentUserId);
+
+                if (!userRoster) {
+                    showError('Roster not found');
+                    return;
+                }
+
+                rosterData = await processRosterPlayers(userRoster, players);
+                filteredRosterData = [...rosterData];
+                
+                renderRoster();
+            } catch (error) {
+                showError('Failed to load roster: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        async function processRosterPlayers(roster, players) {
+            const processedPlayers = [];
+            const playerIds = [
+                ...(roster.players || []),
+                ...(roster.starters || []),
+                ...(roster.taxi || []),
+                ...(roster.reserve || [])
+            ];
+
+            const uniquePlayerIds = [...new Set(playerIds)];
+
+            for (const playerId of uniquePlayerIds) {
+                const player = players[playerId];
+                if (!player) continue;
+
+                let status = 'bench';
+                if (roster.starters?.includes(playerId)) status = 'starter';
+                else if (roster.taxi?.includes(playerId)) status = 'taxi';
+                else if (roster.reserve?.includes(playerId)) status = 'ir';
+
+                processedPlayers.push({
+                    playerId,
+                    player,
+                    status,
+                    position: player.position || 'N/A',
+                    age: player.age || 'N/A',
+                    team: player.team || 'FA',
+                    firstName: player.first_name || '',
+                    lastName: player.last_name || '',
+                    fullName: `${player.first_name || ''} ${player.last_name || ''}`.trim(),
+                    weekPoints: 0,
+                    seasonPoints: 0,
+                    avgPoints: 0,
+                    posRank: 'N/A',
+                    bye: player.bye_week || '-'
+                });
+            }
+
+            return processedPlayers.sort((a, b) => {
+                if (a.position !== b.position) {
+                    const posOrder = { 'QB': 1, 'RB': 2, 'WR': 3, 'TE': 4 };
+                    return (posOrder[a.position] || 99) - (posOrder[b.position] || 99);
+                }
+                return a.fullName.localeCompare(b.fullName);
+            });
+        }
+
+        function renderRoster() {
+            const tbody = document.getElementById('rosterTableBody');
+            
+            if (filteredRosterData.length === 0) {
+                tbody.innerHTML = '<div class="loading">No players found</div>';
+                return;
+            }
+
+            tbody.innerHTML = filteredRosterData.map(player => {
+                const initials = `${player.firstName[0] || ''}${player.lastName[0] || ''}`.toUpperCase();
+                const ageClass = getAgeClass(player.age);
+                const isStarting = player.status === 'starter';
+
+                return `
+                    <div class="table-row ${isStarting ? 'starting' : ''}" onclick="showPlayerModal('${player.playerId}')">
+                        <div>⋮⋮</div>
+                        <div>
+                            <div class="player-avatar">${initials}</div>
+                            <div class="player-name">${player.fullName}</div>
+                            <div class="player-team">${player.team} • ${player.position}</div>
+                        </div>
+                        <div><span class="position-badge ${player.position}">${player.position}</span></div>
+                        <div class="age-cell ${ageClass}">${player.age}</div>
+                        <div class="stat-cell">${player.weekPoints.toFixed(1)}</div>
+                        <div class="stat-cell">${player.seasonPoints.toFixed(1)}</div>
+                        <div class="stat-cell">${player.avgPoints.toFixed(1)}</div>
+                        <div class="stat-cell">${player.posRank}</div>
+                        <div class="stat-cell">${player.bye}</div>
+                        <div><span class="status-badge ${player.status}">${getStatusLabel(player.status)}</span></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getAgeClass(age) {
+            if (age === 'N/A') return 'veteran';
+            const ageNum = parseInt(age);
+            if (ageNum < 25) return 'young';
+            if (ageNum < 28) return 'prime';
+            return 'veteran';
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'starter': 'Starter',
+                'bench': 'Bench',
+                'taxi': 'Taxi',
+                'ir': 'IR'
+            };
+            return labels[status] || status;
+        }
+
+        function filterPlayers() {
+            const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
+            const positionFilter = document.getElementById('positionFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredRosterData = rosterData.filter(player => {
+                const matchesSearch = !searchTerm || 
+                    player.fullName.toLowerCase().includes(searchTerm) ||
+                    player.team.toLowerCase().includes(searchTerm);
+                
+                const matchesPosition = !positionFilter || player.position === positionFilter;
+                const matchesStatus = !statusFilter || player.status === statusFilter;
+
+                return matchesSearch && matchesPosition && matchesStatus;
+            });
+
+            renderRoster();
+        }
+
+        async function showPlayerModal(playerId) {
+            const modal = document.getElementById('playerModal');
+            const player = rosterData.find(p => p.playerId === playerId);
+            
+            if (!player) return;
+
+            document.getElementById('modalPlayerName').textContent = player.fullName;
+            document.getElementById('modalPlayerContent').innerHTML = `
+                <div class="player-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${player.seasonPoints.toFixed(1)}</div>
+                        <div class="stat-label">Season Points</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.avgPoints.toFixed(1)}</div>
+                        <div class="stat-label">Avg Points/Game</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.posRank}</div>
+                        <div class="stat-label">Position Rank</div>
+                    </div>
+                </div>
+                <div style="margin-top: var(--spacing-lg);">
+                    <p><strong>Team:</strong> ${player.team}</p>
+                    <p><strong>Position:</strong> ${player.position}</p>
+                    <p><strong>Age:</strong> ${player.age}</p>
+                    <p><strong>Bye Week:</strong> ${player.bye}</p>
+                    <p><strong>Status:</strong> ${getStatusLabel(player.status)}</p>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('playerModal').classList.remove('active');
+        }
+
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        document.getElementById('playerModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadRoster);
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,44 @@
+# Cursor Rules for Dynasty-Site2
+
+## Repository Information
+- **Repository URL:** https://github.com/blueirishfamily-hash/Dynasty-Site2.git
+- **Default Branch:** main
+- **Deployment:** Automatic via GitHub Pages on push to main
+
+## Deployment Workflow
+
+### When pushing to GitHub:
+1. All changes pushed to `main` branch automatically trigger GitHub Actions deployment
+2. Site deploys to: https://blueirishfamily-hash.github.io/Dynasty-Site2/
+3. Deployment status can be checked in the GitHub Actions tab
+
+### Before Committing:
+- Ensure all files are saved
+- Test locally if possible
+- Check for any console errors
+
+### Commit Messages:
+- Use descriptive commit messages
+- Format: "Brief description of changes"
+- Examples:
+  - "Update roster management UI"
+  - "Fix dashboard API integration"
+  - "Add new feature: trade analyzer"
+
+## File Structure
+- HTML files: `index.html`, `dashboard.html`, `roster.html`, `trade.html`, `draft.html`
+- JavaScript: `sleeper-api.js`
+- Configuration: `.gitignore`, `README.md`, `DEPLOY.md`
+- Workflows: `.github/workflows/`
+
+## Sleeper API
+- League ID: 1194798912048705536
+- Base URL: https://api.sleeper.app/v1
+- All API calls are in `sleeper-api.js`
+
+## Important Notes
+- Never commit API keys or secrets
+- Keep `.gitignore` updated
+- Test changes locally before pushing
+- Check GitHub Actions for deployment status
+

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-navy: #0A1929;
+            --primary-dark: #132F4C;
+            --accent-emerald: #10B981;
+            --accent-orange: #F97316;
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-tertiary: #334155;
+            --bg-card: #1E293B;
+            --bg-hover: #334155;
+            --text-primary: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-tertiary: #94A3B8;
+            --text-muted: #64748B;
+            --border-color: #334155;
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: var(--spacing-lg);
+        }
+        .trade-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .trade-header {
+            margin-bottom: var(--spacing-lg);
+        }
+        .trade-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        .trade-pane {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+        .pane-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .team-selector {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .asset-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .asset-item {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .asset-item:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-emerald);
+        }
+        .asset-item.selected {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--accent-emerald);
+        }
+        .asset-name {
+            font-weight: 600;
+        }
+        .asset-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .remove-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .trade-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+        }
+        .swap-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: none;
+            cursor: pointer;
+            background: var(--accent-emerald);
+            color: white;
+        }
+        .trade-analyzer {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+            margin-bottom: var(--spacing-lg);
+        }
+        .trade-grade {
+            text-align: center;
+            padding: var(--spacing-lg);
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-md);
+        }
+        .grade-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-emerald);
+        }
+        .trade-history {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+        .history-item {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .history-trade {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .loading {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: var(--text-secondary);
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+        }
+        .heading-2 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        .heading-4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="trade-container">
+        <div class="trade-header">
+            <h1 class="heading-2">Trade Center</h1>
+        </div>
+        
+        <div id="errorContainer"></div>
+        
+        <div class="trade-layout">
+            <div class="trade-pane">
+                <div class="pane-header">
+                    <h3 class="heading-4">Your Assets</h3>
+                    <select class="team-selector" id="yourTeamSelect">
+                        <option>Your Team</option>
+                    </select>
+                </div>
+                <div class="asset-list" id="yourAssetsList">
+                    <div class="loading">Loading your roster...</div>
+                </div>
+            </div>
+            
+            <div class="trade-center">
+                <button class="swap-btn" onclick="swapTeams()">⇄</button>
+                <button class="btn" onclick="proposeTrade()">Propose Trade</button>
+            </div>
+            
+            <div class="trade-pane">
+                <div class="pane-header">
+                    <h3 class="heading-4">Their Assets</h3>
+                    <select class="team-selector" id="theirTeamSelect" onchange="loadTheirAssets()">
+                        <option value="">Select Team...</option>
+                    </select>
+                </div>
+                <div class="asset-list" id="theirAssetsList">
+                    <div class="loading">Select a team to view assets</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="trade-analyzer" id="tradeAnalyzer" style="display: none;">
+            <div class="analyzer-header">
+                <h3 class="heading-4">Trade Analyzer</h3>
+            </div>
+            <div class="trade-grade">
+                <div class="grade-value" id="tradeGrade">-</div>
+                <div class="grade-label">Trade Rating</div>
+            </div>
+        </div>
+        
+        <div class="trade-history">
+            <h3 class="heading-4" style="margin-bottom: var(--spacing-md);">Recent Trades</h3>
+            <div id="tradeHistoryList">
+                <div class="loading">Loading trade history...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="sleeper-api.js"></script>
+    <script>
+        let currentUserId = null;
+        let allPlayers = {};
+        let allUsers = [];
+        let allRosters = [];
+        let yourSelectedAssets = [];
+        let theirSelectedAssets = [];
+        let yourRoster = null;
+        let theirRoster = null;
+
+        async function loadTradeCenter() {
+            try {
+                const [users, rosters, players] = await Promise.all([
+                    sleeperAPI.getUsers(),
+                    sleeperAPI.getRosters(),
+                    sleeperAPI.getPlayers()
+                ]);
+
+                allUsers = users;
+                allRosters = rosters;
+                allPlayers = players;
+                currentUserId = users[0]?.user_id;
+
+                if (!currentUserId) {
+                    showError('Unable to determine user ID');
+                    return;
+                }
+
+                yourRoster = rosters.find(r => r.owner_id === currentUserId);
+                if (!yourRoster) {
+                    showError('Your roster not found');
+                    return;
+                }
+
+                const theirTeamSelect = document.getElementById('theirTeamSelect');
+                users.forEach(user => {
+                    if (user.user_id !== currentUserId) {
+                        const option = document.createElement('option');
+                        option.value = user.user_id;
+                        option.textContent = user.display_name || user.username || `Team ${user.user_id}`;
+                        theirTeamSelect.appendChild(option);
+                    }
+                });
+
+                await loadYourAssets();
+                await loadTradeHistory();
+            } catch (error) {
+                showError('Failed to load trade center: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        async function loadYourAssets() {
+            const assetList = document.getElementById('yourAssetsList');
+            
+            if (!yourRoster) {
+                assetList.innerHTML = '<div class="error">Roster not found</div>';
+                return;
+            }
+
+            const assets = [];
+            
+            const players = yourRoster.players || [];
+            for (const playerId of players) {
+                const player = allPlayers[playerId];
+                if (player) {
+                    assets.push({
+                        type: 'player',
+                        id: playerId,
+                        name: `${player.first_name} ${player.last_name}`,
+                        meta: `${player.position} • ${player.team || 'FA'} • Age ${player.age || 'N/A'}`,
+                        data: player
+                    });
+                }
+            }
+
+            const tradedPicks = await sleeperAPI.getTradedPicks();
+            const userPicks = tradedPicks.filter(pick => pick.owner_id === currentUserId);
+            
+            userPicks.forEach(pick => {
+                assets.push({
+                    type: 'pick',
+                    id: `${pick.season}-${pick.round}-${pick.pick}`,
+                    name: `${pick.season} ${getRoundName(pick.round)} Round`,
+                    meta: `Pick ${pick.round}.${pick.pick || 'TBD'}`,
+                    data: pick
+                });
+            });
+
+            assetList.innerHTML = assets.map(asset => `
+                <div class="asset-item" onclick="toggleYourAsset('${asset.id}', '${asset.type}')">
+                    <div>
+                        <div class="asset-name">${asset.name}</div>
+                        <div class="asset-meta">${asset.meta}</div>
+                    </div>
+                </div>
+            `).join('') || '<div>No assets available</div>';
+        }
+
+        async function loadTheirAssets() {
+            const theirTeamSelect = document.getElementById('theirTeamSelect');
+            const theirUserId = theirTeamSelect.value;
+            
+            if (!theirUserId) {
+                document.getElementById('theirAssetsList').innerHTML = 
+                    '<div class="loading">Select a team to view assets</div>';
+                return;
+            }
+
+            theirRoster = allRosters.find(r => r.owner_id === theirUserId);
+            const assetList = document.getElementById('theirAssetsList');
+
+            if (!theirRoster) {
+                assetList.innerHTML = '<div class="error">Roster not found</div>';
+                return;
+            }
+
+            const assets = [];
+            
+            const players = theirRoster.players || [];
+            for (const playerId of players) {
+                const player = allPlayers[playerId];
+                if (player) {
+                    assets.push({
+                        type: 'player',
+                        id: playerId,
+                        name: `${player.first_name} ${player.last_name}`,
+                        meta: `${player.position} • ${player.team || 'FA'} • Age ${player.age || 'N/A'}`,
+                        data: player
+                    });
+                }
+            }
+
+            const tradedPicks = await sleeperAPI.getTradedPicks();
+            const theirPicks = tradedPicks.filter(pick => pick.owner_id === theirUserId);
+            
+            theirPicks.forEach(pick => {
+                assets.push({
+                    type: 'pick',
+                    id: `${pick.season}-${pick.round}-${pick.pick}`,
+                    name: `${pick.season} ${getRoundName(pick.round)} Round`,
+                    meta: `Pick ${pick.round}.${pick.pick || 'TBD'}`,
+                    data: pick
+                });
+            });
+
+            assetList.innerHTML = assets.map(asset => `
+                <div class="asset-item" onclick="toggleTheirAsset('${asset.id}', '${asset.type}')">
+                    <div>
+                        <div class="asset-name">${asset.name}</div>
+                        <div class="asset-meta">${asset.meta}</div>
+                    </div>
+                </div>
+            `).join('') || '<div>No assets available</div>';
+        }
+
+        function toggleYourAsset(id, type) {
+            const index = yourSelectedAssets.findIndex(a => a.id === id);
+            if (index > -1) {
+                yourSelectedAssets.splice(index, 1);
+            } else {
+                yourSelectedAssets.push({ id, type });
+            }
+            updateTradeAnalyzer();
+            updateAssetDisplay();
+        }
+
+        function toggleTheirAsset(id, type) {
+            const index = theirSelectedAssets.findIndex(a => a.id === id);
+            if (index > -1) {
+                theirSelectedAssets.splice(index, 1);
+            } else {
+                theirSelectedAssets.push({ id, type });
+            }
+            updateTradeAnalyzer();
+            updateAssetDisplay();
+        }
+
+        function updateAssetDisplay() {
+            document.querySelectorAll('#yourAssetsList .asset-item').forEach((item, index) => {
+                item.classList.remove('selected');
+            });
+            document.querySelectorAll('#theirAssetsList .asset-item').forEach((item, index) => {
+                item.classList.remove('selected');
+            });
+        }
+
+        function updateTradeAnalyzer() {
+            const analyzer = document.getElementById('tradeAnalyzer');
+            const gradeElement = document.getElementById('tradeGrade');
+            
+            if (yourSelectedAssets.length === 0 && theirSelectedAssets.length === 0) {
+                analyzer.style.display = 'none';
+                return;
+            }
+
+            analyzer.style.display = 'block';
+            
+            const yourValue = yourSelectedAssets.length;
+            const theirValue = theirSelectedAssets.length;
+            const diff = theirValue - yourValue;
+            
+            let grade = 'C';
+            if (diff > 2) grade = 'A';
+            else if (diff > 0) grade = 'B+';
+            else if (diff === 0) grade = 'B';
+            else if (diff > -2) grade = 'C+';
+            else grade = 'C-';
+            
+            gradeElement.textContent = grade;
+        }
+
+        function swapTeams() {
+            [yourSelectedAssets, theirSelectedAssets] = [theirSelectedAssets, yourSelectedAssets];
+            updateTradeAnalyzer();
+        }
+
+        function proposeTrade() {
+            if (yourSelectedAssets.length === 0 && theirSelectedAssets.length === 0) {
+                alert('Please select assets for the trade');
+                return;
+            }
+            
+            alert('Trade proposal functionality would be implemented here. This would require Sleeper API write access.');
+        }
+
+        async function loadTradeHistory() {
+            try {
+                const transactions = await sleeperAPI.getTransactions(1);
+                const trades = transactions.filter(t => t.type === 'trade');
+                const historyList = document.getElementById('tradeHistoryList');
+
+                if (trades.length === 0) {
+                    historyList.innerHTML = '<div>No recent trades</div>';
+                    return;
+                }
+
+                historyList.innerHTML = trades.slice(0, 10).map(trade => {
+                    const date = new Date(trade.status_updated || trade.created);
+                    return `
+                        <div class="history-item">
+                            <div class="history-date">${date.toLocaleDateString()}</div>
+                            <div class="history-trade">Trade completed between teams</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                document.getElementById('tradeHistoryList').innerHTML = 
+                    '<div class="error">Failed to load trade history</div>';
+            }
+        }
+
+        function getRoundName(round) {
+            const roundNames = ['', '1st', '2nd', '3rd', '4th', '5th'];
+            return roundNames[round] || `${round}th`;
+        }
+
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTradeCenter);
+    </script>
+</body>
+</html>
+
